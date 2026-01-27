@@ -199,7 +199,7 @@ template<typename FuncType, typename... ParamTypes>
 inline int32_t HRilBase::Notify(int32_t notifyType, const HRilErrNumber error, FuncType &&_func, ParamTypes &&... _args)
 {
     auto callback = GetRilCallback();
-    if (callback == nullptr) {
+    if (callback == nullptr || _func == nullptr) {
         TELEPHONY_LOGE("callback_ is null");
         return HRIL_ERR_NULL_POINT;
     }
