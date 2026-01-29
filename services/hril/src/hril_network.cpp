@@ -709,7 +709,7 @@ int32_t HRilNetwork::NetworkTimeUpdated(
     int32_t indType, const HRilErrNumber error, const void *response, size_t responseLen)
 {
     if (response == nullptr || responseLen == 0) {
-        TELEPHONY_LOGE("NetworkTimeZoneUpdated response is invalid or responseLen is 0");
+        TELEPHONY_LOGE("NetworkTimeUpdated response is invalid or responseLen is 0");
         return HRIL_ERR_INVALID_PARAMETER;
     }
     int64_t nitzRecvTime = 0;
