@@ -55,9 +55,9 @@ uint8_t *HRilBase::ConvertHexStringToBytes(const void *response, size_t length)
 {
     const int32_t SIZE_VALUE = 2;
     const int32_t BIT_NUM = 4;
-    const int32_t RAW_DATA_LENTH_MAX = 512;
+    const int32_t RAW_DATA_LENGTH_MAX = 512;
 
-    if (response == nullptr || length > RAW_DATA_LENTH_MAX) {
+    if (response == nullptr || length > RAW_DATA_LENGTH_MAX) {
         TELEPHONY_LOGE("response is null!!!");
         return nullptr;
     }
