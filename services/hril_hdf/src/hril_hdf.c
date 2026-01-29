@@ -169,7 +169,7 @@ static void LoadVendor(void)
     const char *libPath = NULL;
     if (realpath(rilLibPath, realLibPath) == NULL) {
         libPath = rilLibPath;
-    } else if (strstr(realLibPath, "/vendor/lib64") == realLibPath) {
+    } else if (strstr(realLibPath, "/vendor/lib64/") == realLibPath) {
         libPath = realLibPath;
     } else {
         TELEPHONY_LOGE("realLibPath realpath fail");
