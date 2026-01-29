@@ -167,9 +167,9 @@ static void LoadVendor(void)
     TELEPHONY_LOGI("RilInit LoadVendor start with rilLibPath:%{public}s", rilLibPath);
     char realLibPath[PATH_MAX] = { 0 };
     const char *libPath = NULL;
-    if(realpath(rilLibPath, realLibPath) == NULL) {
+    if (realpath(rilLibPath, realLibPath) == NULL) {
         libPath = rilLibPath;
-    } else if(strstr(realLibPath, "/vendor/lib64") == realLibPath) {
+    } else if (strstr(realLibPath, "/vendor/lib64") == realLibPath) {
         libPath = realLibPath;
     } else {
         TELEPHONY_LOGE("realLibPath realpath fail");
