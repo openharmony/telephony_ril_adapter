@@ -166,13 +166,18 @@ static void LoadVendor(void)
 
     TELEPHONY_LOGI("RilInit LoadVendor start with rilLibPath:%{public}s", rilLibPath);
     char realLibPath[PATH_MAX] = { 0 };
-    if (realpath(rilLibPath, realLibPath) == NULL || strstr(realLibPath, "/vendor/lib64") == NULL) {
-        TELEPHONY_LOGE("realpath %{public}s is fail.", realLibPath);
+    const char *libPath = NULL;
+    if(realpath(rilLibPath, realLibPath) == NULL) {
+        libPath = rilLibPath;
+    } else if(strstr(realLibPath, "/vendor/lib64") == realLibPath) {
+        libPath = realLibPath;
+    } else {
+        TELEPHONY_LOGE("realLibPath realpath fail");
         return;
     }
-    g_dlHandle = dlopen(realLibPath, RTLD_NOW);
+    g_dlHandle = dlopen(libPath, RTLD_NOW);
     if (g_dlHandle == NULL) {
-        TELEPHONY_LOGE("dlopen %{public}s is fail. %{public}s", realLibPath, dlerror());
+        TELEPHONY_LOGE("dlopen %{public}s is fail. %{public}s", libPath, dlerror());
         return;
     }
     rilInitOps = (const HRilOps *(*)(const struct HRilReport *))dlsym(g_dlHandle, "RilInitOps");
