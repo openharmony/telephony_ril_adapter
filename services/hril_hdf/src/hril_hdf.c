@@ -45,7 +45,7 @@ static struct HRilReport g_reportOps = {
     OnTimerCallback
 };
 
-static int32_t GetVendorLibPath(char *path, int32_t pathSize)
+static int32_t GetVendorLibPath(char *path, uint32_t pathSize)
 {
     int32_t code = -1;
     code = GetParameter(RIL_VENDOR_LIB_PATH, "", path, pathSize);
