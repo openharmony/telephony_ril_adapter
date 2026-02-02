@@ -524,7 +524,7 @@ int32_t HRilNetwork::GetPhysicalChannelConfigResponse(
         phyChnlCfgList.channelConfigInfos.clear();
         const HRilChannelConfigList *hrilChannelConfigList = static_cast<const HRilChannelConfigList *>(response);
         phyChnlCfgList.itemNum = hrilChannelConfigList->itemNum;
-        if (phyChnlCfgList.itemNum < 0 || phyChnlCfgList.itemNum > responseLen / sizeof(HRilPhyChannelConfig)) {
+        if (phyChnlCfgList.itemNum < 0 || static_cast<size_t>(phyChnlCfgList.itemNum) > responseLen / sizeof(HRilPhyChannelConfig)) {
             return HRIL_ERR_INVALID_PARAMETER;
         }
         for (int32_t i = 0; i < phyChnlCfgList.itemNum; i++) {
@@ -747,7 +747,7 @@ int32_t HRilNetwork::NetworkPhyChnlCfgUpdated(
     phyChnlCfgList.channelConfigInfos.clear();
     const HRilChannelConfigList *hrilChannelConfigList = static_cast<const HRilChannelConfigList *>(response);
     phyChnlCfgList.itemNum = hrilChannelConfigList->itemNum;
-    if (phyChnlCfgList.itemNum < 0 || phyChnlCfgList.itemNum > responseLen / sizeof(HRilPhyChannelConfig)) {
+    if (phyChnlCfgList.itemNum < 0 || static_cast<size_t>(phyChnlCfgList.itemNum) > responseLen / sizeof(HRilPhyChannelConfig)) {
         return HRIL_ERR_INVALID_PARAMETER;
     }
     for (int32_t i = 0; i < phyChnlCfgList.itemNum; i++) {
