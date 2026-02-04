@@ -72,9 +72,9 @@ protected:
 
     template<typename FuncType, typename... ParamTypes>
     inline int32_t Response(
-        HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, FuncType &&_func, ParamTypes &&... _args);
+        HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, FuncType &&func, ParamTypes &&... _args);
     template<typename FuncType, typename... ParamTypes>
-    inline int32_t Notify(int32_t notifyType, const HRilErrNumber error, FuncType &&_func, ParamTypes &&... _args);
+    inline int32_t Notify(int32_t notifyType, const HRilErrNumber error, FuncType &&func, ParamTypes &&... _args);
     int32_t ConvertHexStringToInt(char **response, int32_t index, int32_t length);
     inline char *StringToCString(const std::string &src)
     {
@@ -183,30 +183,30 @@ int32_t HRilBase::ProcessNotify(
 }
 
 template<typename FuncType, typename... ParamTypes>
-inline int32_t HRilBase::Response(HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, FuncType &&_func,
+inline int32_t HRilBase::Response(HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, FuncType &&func,
     ParamTypes &&... _args)
 {
     auto callback = GetRilCallback();
-    if (callback == nullptr || _func == nullptr) {
-        TELEPHONY_LOGE("callback_ or _func is null");
+    if (callback == nullptr || func == nullptr) {
+        TELEPHONY_LOGE("callback_ or func is null");
         return HRIL_ERR_NULL_POINT;
     }
-    (callback->*(_func))(BuildIHRilRadioResponseInfo(responseInfo), std::forward<ParamTypes>(_args)...);
+    (callback->*(func))(BuildIHRilRadioResponseInfo(responseInfo), std::forward<ParamTypes>(_args)...);
     return HRIL_ERR_SUCCESS;
 }
 
 template<typename FuncType, typename... ParamTypes>
-inline int32_t HRilBase::Notify(int32_t notifyType, const HRilErrNumber error, FuncType &&_func, ParamTypes &&... _args)
+inline int32_t HRilBase::Notify(int32_t notifyType, const HRilErrNumber error, FuncType &&func, ParamTypes &&... _args)
 {
     auto callback = GetRilCallback();
-    if (callback == nullptr || _func == nullptr) {
+    if (callback == nullptr || func == nullptr) {
         TELEPHONY_LOGE("callback_ is null");
         return HRIL_ERR_NULL_POINT;
     }
     HDI::Ril::V1_1::RilRadioResponseInfo mResponseInfo = { 0 };
     mResponseInfo.slotId = GetSlotId();
     mResponseInfo.type = (HDI::Ril::V1_1::RilResponseTypes)notifyType;
-    (callback->*(_func))(mResponseInfo, std::forward<ParamTypes>(_args)...);
+    (callback->*(func))(mResponseInfo, std::forward<ParamTypes>(_args)...);
     return HRIL_ERR_SUCCESS;
 }
 } // namespace Telephony
