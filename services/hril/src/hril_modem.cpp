@@ -103,8 +103,8 @@ int32_t HRilModem::DsdsModeUpdated(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     return Notify(
