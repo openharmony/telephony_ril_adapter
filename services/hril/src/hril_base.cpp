@@ -107,6 +107,7 @@ bool HRilBase::ConvertToString(char **dest, const std::string &srcStr)
         return false;
     }
     if (strncpy_s(*dest, len, reinterpret_cast<const char *>(srcStr.c_str()), size) != EOK) {
+        SafeFrees(*dest);
         return false;
     }
     return true;
