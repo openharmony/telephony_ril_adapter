@@ -94,8 +94,7 @@ static UsbDeviceInfo *GetUsbDeviceInfo(void)
 #ifdef UDEV_SUPPORT
     struct udev *udev = NULL;
     struct udev_enumerate *enumerate = NULL;
-    struct udev_list_entry *devices = NULL;
-    struct udev_list_entry *devListEntry = NULL;
+    struct udev_list_entry *devices = NULL, *devListEntry = NULL;
     struct udev_device *dev = NULL;
 
     udev = udev_new();
@@ -124,6 +123,7 @@ static UsbDeviceInfo *GetUsbDeviceInfo(void)
         dev = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
         if (!dev) {
             TELEPHONY_LOGE("Unable to find parent usb device.");
+            udev_enumerate_unref(enumerate);
             udev_unref(udev);
             return uDevInfo;
         }
@@ -170,6 +170,8 @@ static void LoadVendor(void)
     if (realpath(rilLibPath, realLibPath) == NULL) {
         libPath = rilLibPath;
     } else if (strstr(realLibPath, "/vendor/lib64/") == realLibPath) {
+        libPath = realLibPath;
+    } else if (strstr(realLibPath, "/vendor/modem/modem_vendor/lib64/") == realLibPath) {
         libPath = realLibPath;
     } else {
         TELEPHONY_LOGE("realLibPath realpath fail");
