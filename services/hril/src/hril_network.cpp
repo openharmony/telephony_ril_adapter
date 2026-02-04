@@ -27,6 +27,8 @@ enum class NetworkParameter : int32_t {
     INVALID_RESPONSE_VALUE = 11,
 };
 const int64_t NANO_TO_SECOND = 1000000000;
+const int32_t RESP_NUM = 3;
+const int32_t ITEMNUM_MAX = 20;
 
 HRilNetwork::HRilNetwork(int32_t slotId) : HRilBase(slotId)
 {
@@ -330,7 +332,7 @@ int32_t HRilNetwork::GetOperatorInfoResponse(
     int32_t requestNum, HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, const void *response, size_t responseLen)
 {
     HDI::Ril::V1_1::OperatorInfo operatorInfoResult = {};
-    if (response == nullptr || responseLen == 0 || (responseLen % sizeof(char *)) != 0) {
+    if (response == nullptr || responseLen == 0 || responseLe != RESP_NUM * sizeof(char *)) {
         TELEPHONY_LOGE("GetOperatorInfoResponse response is invalid");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
@@ -524,8 +526,7 @@ int32_t HRilNetwork::GetPhysicalChannelConfigResponse(
         phyChnlCfgList.channelConfigInfos.clear();
         const HRilChannelConfigList *hrilChannelConfigList = static_cast<const HRilChannelConfigList *>(response);
         phyChnlCfgList.itemNum = hrilChannelConfigList->itemNum;
-        if (phyChnlCfgList.itemNum < 0 || static_cast<size_t>(phyChnlCfgList.itemNum) >
-            responseLen / sizeof(HRilPhyChannelConfig)) {
+        if (phyChnlCfgList.itemNum > ITEMNUM_MAX) {
             return HRIL_ERR_INVALID_PARAMETER;
         }
         for (int32_t i = 0; i < phyChnlCfgList.itemNum; i++) {
@@ -549,7 +550,7 @@ int32_t HRilNetwork::GetPhysicalChannelConfigResponse(
                 phyChnlCfg.cellConnStatus, phyChnlCfg.cellBandwidthDownlinkKhz, phyChnlCfg.cellBandwidthUplinkKhz,
                 phyChnlCfg.ratType, phyChnlCfg.freqRange, phyChnlCfg.downlinkChannelNum, phyChnlCfg.uplinkChannelNum,
                 phyChnlCfg.contextIdNum);
-            if (phyChnlCfg.contextIdNum < 0) {
+            if (phyChnlCfg.contextIdNum > ITEMNUM_MAX) {
                 return HRIL_ERR_INVALID_PARAMETER;
             }
             for (int32_t j = 0; j < phyChnlCfg.contextIdNum; j++) {
@@ -748,8 +749,7 @@ int32_t HRilNetwork::NetworkPhyChnlCfgUpdated(
     phyChnlCfgList.channelConfigInfos.clear();
     const HRilChannelConfigList *hrilChannelConfigList = static_cast<const HRilChannelConfigList *>(response);
     phyChnlCfgList.itemNum = hrilChannelConfigList->itemNum;
-    if (phyChnlCfgList.itemNum < 0 || static_cast<size_t>(phyChnlCfgList.itemNum) >
-        responseLen / sizeof(HRilPhyChannelConfig)) {
+    if (phyChnlCfgList.itemNum > ITEMNUM_MAX) {
         return HRIL_ERR_INVALID_PARAMETER;
     }
     for (int32_t i = 0; i < phyChnlCfgList.itemNum; i++) {
@@ -765,7 +765,7 @@ int32_t HRilNetwork::NetworkPhyChnlCfgUpdated(
         phyChnlCfg.uplinkChannelNum = hrilChannelConfigList->channelConfigs[i].uplinkChannelNum;
         phyChnlCfg.physicalCellId = hrilChannelConfigList->channelConfigs[i].physicalCellId;
         phyChnlCfg.contextIdNum = hrilChannelConfigList->channelConfigs[i].contextIdNum;
-        if (phyChnlCfg.contextIdNum < 0) {
+        if (phyChnlCfg.contextIdNum > ITEMNUM_MAX) {
             return HRIL_ERR_INVALID_PARAMETER;
         }
         for (int32_t j = 0; j < phyChnlCfg.contextIdNum; j++) {
@@ -846,8 +846,8 @@ int32_t HRilNetwork::NetworkCurrentCellUpdated_1_1(
 int32_t HRilNetwork::ResidentNetworkUpdated(int32_t indType, const HRilErrNumber error, const void *response,
     size_t responseLen)
 {
-    if (response == nullptr) {
-        TELEPHONY_LOGE("ResidentNetworkUpdated response is invalid");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("ResidentNetworkUpdated response is invalid or responseLen is 0");
         return HRIL_ERR_INVALID_PARAMETER;
     }
     return Notify(indType, error, &HDI::Ril::V1_2::IRilCallback::ResidentNetworkUpdated, (const char *)response);
@@ -1054,9 +1054,13 @@ void HRilNetwork::FillCellNearbyInfoCdma(HDI::Ril::V1_2::CellNearbyInfo_1_2 &cel
 int32_t HRilNetwork::BuildNeighboringCellList(
     HDI::Ril::V1_1::CellListNearbyInfo &cellInfoList, const void *response, size_t responseLen)
 {
+    (void)responseLen;
     const CellInfoList *temp = reinterpret_cast<const CellInfoList *>(response);
     cellInfoList.itemNum = temp->itemNum;
     TELEPHONY_LOGI("cellInfoList.itemNum = %{public}d", cellInfoList.itemNum);
+    if (temp->itemNum > ITEMNUM_MAX || temp->cellNearbyInfo == nullptr) {
+        return HRIL_ERR_GENERIC_FAILURE;
+    }
     for (int32_t i = 0; i < temp->itemNum; i++) {
         HDI::Ril::V1_1::CellNearbyInfo cellInfo;
         CellInfo *cell = temp->cellNearbyInfo + i;
@@ -1069,9 +1073,13 @@ int32_t HRilNetwork::BuildNeighboringCellList(
 int32_t HRilNetwork::BuildNeighboringCellList(
     HDI::Ril::V1_2::CellListNearbyInfo_1_2 &cellInfoList, const void *response, size_t responseLen)
 {
+    (void)responseLen;
     const CellInfoList *temp = reinterpret_cast<const CellInfoList *>(response);
     cellInfoList.itemNum = temp->itemNum;
     TELEPHONY_LOGI("cellInfoList.itemNum = %{public}d", cellInfoList.itemNum);
+    if (temp->itemNum > ITEMNUM_MAX || temp->cellNearbyInfo == nullptr) {
+        return HRIL_ERR_GENERIC_FAILURE;
+    }
     for (int32_t i = 0; i < temp->itemNum; i++) {
         HDI::Ril::V1_2::CellNearbyInfo_1_2 cellInfo;
         CellInfo *cell = temp->cellNearbyInfo + i;
