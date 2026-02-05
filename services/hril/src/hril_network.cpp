@@ -332,7 +332,7 @@ int32_t HRilNetwork::GetOperatorInfoResponse(
     int32_t requestNum, HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, const void *response, size_t responseLen)
 {
     HDI::Ril::V1_1::OperatorInfo operatorInfoResult = {};
-    if (response == nullptr || responseLen == 0 || responseLe != RESP_NUM * sizeof(char *)) {
+    if (response == nullptr || responseLen == 0 || responseLen != RESP_NUM * sizeof(char *)) {
         TELEPHONY_LOGE("GetOperatorInfoResponse response is invalid");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
