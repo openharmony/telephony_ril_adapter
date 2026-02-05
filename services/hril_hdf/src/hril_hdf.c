@@ -88,6 +88,24 @@ static UsbDeviceInfo *GetPresetInformation(const char *vId, const char *pId)
 }
 #endif
 
+#ifdef UDEV_SUPPORT
+static bool udevInit(struct udev *udev, struct udev_enumerate *enumerate)
+{
+    udev = udev_new();
+    if (udev == NULL) {
+        TELEPHONY_LOGE("Can't create udev");
+        return false;
+    }
+    enumerate = udev_enumerate_new(udev);
+    if (enumerate == NULL) {
+        TELEPHONY_LOGE("Can't create enumerate");
+        udev_unref(udev);
+        return false;
+    }
+    return true;
+}
+#endif
+
 static UsbDeviceInfo *GetUsbDeviceInfo(void)
 {
     UsbDeviceInfo *uDevInfo = NULL;
@@ -98,17 +116,10 @@ static UsbDeviceInfo *GetUsbDeviceInfo(void)
     struct udev_list_entry *devListEntry = NULL;
     struct udev_device *dev = NULL;
 
-    udev = udev_new();
-    if (udev == NULL) {
-        TELEPHONY_LOGE("Can't create udev");
+    if (udevInit(udev, enumerate) == false) {
         return uDevInfo;
     }
-    enumerate = udev_enumerate_new(udev);
-    if (enumerate == NULL) {
-        TELEPHONY_LOGE("Can't create enumerate");
-        udev_unref(udev);
-        return uDevInfo;
-    }
+
     udev_enumerate_add_match_subsystem(enumerate, "tty");
     udev_enumerate_scan_devices(enumerate);
     devices = udev_enumerate_get_list_entry(enumerate);
@@ -170,8 +181,9 @@ static void LoadVendor(void)
     const char *libPath = NULL;
     if (realpath(rilLibPath, realLibPath) == NULL) {
         libPath = rilLibPath;
-    } else if (strstr(realLibPath, "/vendor/lib64/") == realLibPath ||
-        strstr(realLibPath, "/vendor/modem/modem_vendor/lib64/") == realLibPath) {
+    } else if (strstr(realLibPath, "/vendor/lib64/") == realLibPath) {	 
+        libPath = realLibPath;	 
+    } else if (strstr(realLibPath, "/vendor/modem/modem_vendor/lib64/") == realLibPath) {
         libPath = realLibPath;
     } else {
         TELEPHONY_LOGE("realLibPath realpath fail");
