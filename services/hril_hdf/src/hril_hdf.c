@@ -94,7 +94,8 @@ static UsbDeviceInfo *GetUsbDeviceInfo(void)
 #ifdef UDEV_SUPPORT
     struct udev *udev = NULL;
     struct udev_enumerate *enumerate = NULL;
-    struct udev_list_entry *devices = NULL, *devListEntry = NULL;
+    struct udev_list_entry *devices = NULL;
+    struct udev_list_entry *devListEntry = NULL;
     struct udev_device *dev = NULL;
 
     udev = udev_new();
