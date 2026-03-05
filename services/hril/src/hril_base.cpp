@@ -55,8 +55,9 @@ uint8_t *HRilBase::ConvertHexStringToBytes(const void *response, size_t length)
 {
     const int32_t SIZE_VALUE = 2;
     const int32_t BIT_NUM = 4;
+    const int32_t RAW_DATA_LENGTH_MAX = 512;
 
-    if (response == nullptr) {
+    if (response == nullptr || length > RAW_DATA_LENGTH_MAX) {
         TELEPHONY_LOGE("response is null!!!");
         return nullptr;
     }
@@ -99,9 +100,6 @@ bool HRilBase::ConvertToString(char **dest, const std::string &srcStr)
         return true;
     }
     size_t len = size + 1;
-    if (len <= 0) {
-        return false;
-    }
 
     *dest = (char *)calloc(len, sizeof(char));
     if (*dest == nullptr) {
@@ -109,6 +107,7 @@ bool HRilBase::ConvertToString(char **dest, const std::string &srcStr)
         return false;
     }
     if (strncpy_s(*dest, len, reinterpret_cast<const char *>(srcStr.c_str()), size) != EOK) {
+        SafeFrees(*dest);
         return false;
     }
     return true;

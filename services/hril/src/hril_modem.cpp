@@ -72,8 +72,8 @@ int32_t HRilModem::RadioStateUpdated(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     radioState_ = *(const int32_t *)response;
@@ -87,8 +87,8 @@ int32_t HRilModem::VoiceRadioTechUpdated(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     HDI::Ril::V1_1::VoiceRadioTechnology voiceRadioTech = {};
@@ -103,8 +103,8 @@ int32_t HRilModem::DsdsModeUpdated(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     return Notify(
@@ -118,8 +118,8 @@ int32_t HRilModem::NcfgFinishedResult(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     return Notify(
@@ -133,8 +133,8 @@ int32_t HRilModem::RestartRildNvMatch(
         TELEPHONY_LOGE("Invalid parameter, responseLen:%{public}zu", responseLen);
         return HRIL_ERR_INVALID_PARAMETER;
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         return HRIL_ERR_NULL_POINT;
     }
     return Notify(
@@ -162,8 +162,8 @@ int32_t HRilModem::GetRadioStateResponse(
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_NULL_POINT;
         }
@@ -182,8 +182,8 @@ int32_t HRilModem::GetImeiResponse(
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_NULL_POINT;
         }
@@ -203,8 +203,8 @@ int32_t HRilModem::GetImeiSvResponse(
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_NULL_POINT;
         }
@@ -225,8 +225,8 @@ int32_t HRilModem::GetMeidResponse(
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_NULL_POINT;
         }
@@ -240,8 +240,8 @@ int32_t HRilModem::GetVoiceRadioTechnologyResponse(
     int32_t requestNum, HDI::Ril::V1_1::RilRadioResponseInfo &responseInfo, const void *response, size_t responseLen)
 {
     HDI::Ril::V1_1::VoiceRadioTechnology voiceRadioTech = {};
-    if (response == nullptr) {
-        TELEPHONY_LOGE("GetVoiceRadioTechnologyResponse Invalid response: nullptr");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("GetVoiceRadioTechnologyResponse Invalid response: nullptr or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
@@ -274,8 +274,8 @@ int32_t HRilModem::GetBasebandVersionResponse(
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_INVALID_RESPONSE;
         }
     }
-    if (response == nullptr) {
-        TELEPHONY_LOGE("response is null");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("response is null or responseLen is 0");
         if (responseInfo.error == HDI::Ril::V1_1::RilErrType::NONE) {
             responseInfo.error = HDI::Ril::V1_1::RilErrType::RIL_ERR_NULL_POINT;
         }
