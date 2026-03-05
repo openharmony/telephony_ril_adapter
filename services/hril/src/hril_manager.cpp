@@ -100,6 +100,9 @@ void HRilManager::ReleaseHRilRequest(int32_t request, ReqDataInfo *requestInfo)
             }
             reqDataSet.erase(it);
         }
+        if (reqDataSet.empty()) {
+            requestList_.erase(iter);
+        }
     }
 }
 
@@ -313,7 +316,7 @@ void HRilManager::ReportNotification(std::vector<std::unique_ptr<T>> &subModules
     int32_t notifyType = HDI::Ril::V1_1::RIL_RESPONSE_NOTICE;
     auto iter = notificationMap_.find(reportInfo->notifyId);
     auto event = notificationEventMap_.find(reportInfo->notifyId);
-    if (iter != notificationMap_.end()) {
+    if (iter != notificationMap_.end() && event != notificationEventMap_.end()) {
         if (reportInfo->notifyId == HNOTI_NETWORK_CS_REG_STATUS_UPDATED ||
             reportInfo->notifyId == HNOTI_NETWORK_SIGNAL_STRENGTH_UPDATED ||
             reportInfo->notifyId == HNOTI_CALL_EMERGENCY_NUMBER_REPORT ||

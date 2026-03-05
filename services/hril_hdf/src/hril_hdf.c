@@ -25,6 +25,7 @@
 #include "stdlib.h"
 #include "telephony_log_c.h"
 #include "securec.h"
+#include <limits.h>
 
 #define RIL_VENDOR_LIB_PATH "const.sys.radio.vendorlib.path"
 #define VIRTUAL_MODEM_SWITCH  "const.booster.virtual_modem_switch"
@@ -44,17 +45,17 @@ static struct HRilReport g_reportOps = {
     OnTimerCallback
 };
 
-static int32_t GetVendorLibPath(char *path)
+static int32_t GetVendorLibPath(char *path, uint32_t pathSize)
 {
     int32_t code = -1;
-    code = GetParameter(RIL_VENDOR_LIB_PATH, "", path, PARAMETER_SIZE);
+    code = GetParameter(RIL_VENDOR_LIB_PATH, "", path, pathSize);
     char simSlotCount[PARAMETER_SIZE] = {0};
     GetParameter(TEL_SIM_SLOT_COUNT, DEFAULT_SLOT_COUNT, simSlotCount, PARAMETER_SIZE);
     int32_t slotCount = atoi(simSlotCount);
     char virtualModemSwitch[PARAMETER_SIZE] = {0};
     GetParameter(VIRTUAL_MODEM_SWITCH, VIRTUAL_MODEM_DEFAULT_SWITCH, virtualModemSwitch, PARAMETER_SIZE);
     if (slotCount == 0 && strcmp(virtualModemSwitch, "true") == 0) {
-        if (strcpy_s(path, PARAMETER_SIZE, "libril_msgtransfer.z.so") == EOK) {
+        if (strcpy_s(path, pathSize, "libril_msgtransfer.z.so") == EOK) {
             TELEPHONY_LOGI("virtualModemSwitch on set path libril_msgtransfer.z.so");
             code = 1;
         }
@@ -87,26 +88,38 @@ static UsbDeviceInfo *GetPresetInformation(const char *vId, const char *pId)
 }
 #endif
 
-static UsbDeviceInfo *GetUsbDeviceInfo(void)
-{
-    UsbDeviceInfo *uDevInfo = NULL;
 #ifdef UDEV_SUPPORT
-    struct udev *udev;
-    struct udev_enumerate *enumerate;
-    struct udev_list_entry *devices, *devListEntry;
-    struct udev_device *dev;
-
+static bool udevInit(struct udev *udev, struct udev_enumerate *enumerate)
+{
     udev = udev_new();
     if (udev == NULL) {
         TELEPHONY_LOGE("Can't create udev");
-        return uDevInfo;
+        return false;
     }
     enumerate = udev_enumerate_new(udev);
     if (enumerate == NULL) {
         TELEPHONY_LOGE("Can't create enumerate");
         udev_unref(udev);
+        return false;
+    }
+    return true;
+}
+#endif
+
+static UsbDeviceInfo *GetUsbDeviceInfo(void)
+{
+    UsbDeviceInfo *uDevInfo = NULL;
+#ifdef UDEV_SUPPORT
+    struct udev *udev = NULL;
+    struct udev_enumerate *enumerate = NULL;
+    struct udev_list_entry *devices = NULL;
+    struct udev_list_entry *devListEntry = NULL;
+    struct udev_device *dev = NULL;
+
+    if (udevInit(udev, enumerate) == false) {
         return uDevInfo;
     }
+
     udev_enumerate_add_match_subsystem(enumerate, "tty");
     udev_enumerate_scan_devices(enumerate);
     devices = udev_enumerate_get_list_entry(enumerate);
@@ -122,6 +135,8 @@ static UsbDeviceInfo *GetUsbDeviceInfo(void)
         dev = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
         if (!dev) {
             TELEPHONY_LOGE("Unable to find parent usb device.");
+            udev_enumerate_unref(enumerate);
+            udev_unref(udev);
             return uDevInfo;
         }
         const char *cIdVendor = udev_device_get_sysattr_value(dev, "idVendor");
@@ -148,7 +163,7 @@ static void LoadVendor(void)
     const HRilOps *ops = NULL;
 
     UsbDeviceInfo *uDevInfo = GetUsbDeviceInfo();
-    if (GetVendorLibPath(vendorLibPath) == HDF_SUCCESS) {
+    if (GetVendorLibPath(vendorLibPath, PARAMETER_SIZE) == HDF_SUCCESS) {
         rilLibPath = vendorLibPath;
     } else if (uDevInfo != NULL) {
         rilLibPath = uDevInfo->libPath;
@@ -162,9 +177,21 @@ static void LoadVendor(void)
     }
 
     TELEPHONY_LOGI("RilInit LoadVendor start with rilLibPath:%{public}s", rilLibPath);
-    g_dlHandle = dlopen(rilLibPath, RTLD_NOW);
+    char realLibPath[PATH_MAX] = {0};
+    const char *libPath = NULL;
+    if (realpath(rilLibPath, realLibPath) == NULL) {
+        libPath = rilLibPath;
+    } else if (strstr(realLibPath, "/vendor/lib64/") == realLibPath) {
+        libPath = realLibPath;
+    } else if (strstr(realLibPath, "/vendor/modem/modem_vendor/lib64/") == realLibPath) {
+        libPath = realLibPath;
+    } else {
+        TELEPHONY_LOGE("realLibPath realpath fail");
+        return;
+    }
+    g_dlHandle = dlopen(libPath, RTLD_NOW);
     if (g_dlHandle == NULL) {
-        TELEPHONY_LOGE("dlopen %{public}s is fail. %{public}s", rilLibPath, dlerror());
+        TELEPHONY_LOGE("dlopen %{public}s is fail. %{public}s", libPath, dlerror());
         return;
     }
     rilInitOps = (const HRilOps *(*)(const struct HRilReport *))dlsym(g_dlHandle, "RilInitOps");
