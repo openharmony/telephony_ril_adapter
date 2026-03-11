@@ -730,8 +730,8 @@ int32_t HRilNetwork::NetworkTimeUpdated(
 int32_t HRilNetwork::NetworkTimeZoneUpdated(
     int32_t indType, const HRilErrNumber error, const void *response, size_t responseLen)
 {
-    if (response == nullptr) {
-        TELEPHONY_LOGE("NetworkTimeZoneUpdated response is invalid");
+    if (response == nullptr || responseLen == 0) {
+        TELEPHONY_LOGE("NetworkTimeZoneUpdated response is invalid or responseLen is 0");
         return HRIL_ERR_INVALID_PARAMETER;
     }
     return Notify(indType, error, &HDI::Ril::V1_1::IRilCallback::NetworkTimeZoneUpdated, (const char *)response);
