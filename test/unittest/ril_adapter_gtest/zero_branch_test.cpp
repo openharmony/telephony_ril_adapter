@@ -1000,11 +1000,13 @@ HWTEST_F(BranchTest, Telephony_HrilManager_Network_004, Function | MediumTest | 
     EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse(0, responseInfo, &info, 0));
     EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_1(0, responseInfo, &info, 0));
     EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_2(0, responseInfo, &info, 0));
-    EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse(0, responseInfo, &info, sizeof(CurrentCellInfoList)));
-    EXPECT_NE(
-        HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_1(0, responseInfo, &info, sizeof(CurrentCellInfoList)));
-    EXPECT_NE(
-        HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_2(0, responseInfo, &info, sizeof(CurrentCellInfoList)));
+    CurrentCellInfoList infoList = { 0, nullptr };
+    EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse(0, responseInfo,
+        &infoList, sizeof(CurrentCellInfoList)));
+    EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_1(0, responseInfo,
+        &infoList, sizeof(CurrentCellInfoList)));
+    EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse_1_2(0, responseInfo,
+        &infoList, sizeof(CurrentCellInfoList)));
     CurrentCellInfoVendor infoVendor;
     info.currentCellInfo = &infoVendor;
     EXPECT_NE(HDF_SUCCESS, network->GetCurrentCellInfoResponse(0, responseInfo, &info, sizeof(CurrentCellInfoList)));
