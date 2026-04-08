@@ -194,6 +194,7 @@ inline constexpr const char *HRIL_VIRTUAL_MODEM_SWITCH = "const.booster.virtual_
 inline constexpr const char *HRIL_VIRTUAL_MODEM_DEFAULT_SWITCH = "false";
 inline constexpr const char *HRIL_DEFAULT_VSIM_MODEM_COUNT = "0";
 inline constexpr const char *HRIL_VSIM_MODEM_COUNT_STR = "const.telephony.vsimModemCount";
+inline constexpr const char *HRIL_PRODUCT_DEVICE_TYPE = "const.product.devicetype";
 
 /** Interface token */
 inline const std::u16string HRIL_INTERFACE_TOKEN = u"ohos.telephony.hril";
