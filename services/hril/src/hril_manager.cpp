@@ -1126,8 +1126,7 @@ int32_t GetSimSlotCount()
     char virtualModemSwitch[HRIL_SYSPARA_SIZE] = {0};
     GetParameter(HRIL_VIRTUAL_MODEM_SWITCH, HRIL_VIRTUAL_MODEM_DEFAULT_SWITCH, virtualModemSwitch,
         HRIL_SYSPARA_SIZE);
-    if (strcmp(virtualModemSwitch, "true") == 0 && simSlotCountNumber == 0) {
-        TELEPHONY_LOGI("virtualModemSwitch on. set simSlotCountNumber 2");
+    if (simSlotCountNumber < DUAL_SLOT_COUNT && strcmp(virtualModemSwitch, "true") == 0) {
         simSlotCountNumber = DUAL_SLOT_COUNT;
     }
     char vSimModemCount[HRIL_SYSPARA_SIZE] = { 0 };
