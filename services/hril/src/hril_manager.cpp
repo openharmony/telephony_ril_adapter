@@ -16,6 +16,7 @@
 #include "hril_manager.h"
 
 #include <cstring>
+#include "parse_sim_slot_int.h"
 #include "hril_base.h"
 #include "hril_event_map.h"
 #include "hril_notification.h"
@@ -1122,7 +1123,11 @@ int32_t GetSimSlotCount()
 {
     char simSlotCount[HRIL_SYSPARA_SIZE] = { 0 };
     GetParameter(HRIL_TEL_SIM_SLOT_COUNT, HRIL_DEFAULT_SLOT_COUNT, simSlotCount, HRIL_SYSPARA_SIZE);
-    int32_t simSlotCountNumber = std::atoi(simSlotCount);
+    int32_t simSlotCountNumber = 0;
+    if (!ParseSimSlotInt32(simSlotCount, simSlotCountNumber)) {
+        TELEPHONY_LOGE("invalid sim slot count param: %{public}s", simSlotCount);
+        simSlotCountNumber = 0;
+    }
     char virtualModemSwitch[HRIL_SYSPARA_SIZE] = {0};
     GetParameter(HRIL_VIRTUAL_MODEM_SWITCH, HRIL_VIRTUAL_MODEM_DEFAULT_SWITCH, virtualModemSwitch,
         HRIL_SYSPARA_SIZE);
@@ -1131,7 +1136,11 @@ int32_t GetSimSlotCount()
     }
     char vSimModemCount[HRIL_SYSPARA_SIZE] = { 0 };
     GetParameter(HRIL_VSIM_MODEM_COUNT_STR, HRIL_DEFAULT_VSIM_MODEM_COUNT, vSimModemCount, HRIL_SYSPARA_SIZE);
-    int32_t vSimModemCountNumber = std::atoi(vSimModemCount);
+    int32_t vSimModemCountNumber = 0;
+    if (!ParseSimSlotInt32(vSimModemCount, vSimModemCountNumber)) {
+        TELEPHONY_LOGE("invalid vsim modem count param: %{public}s", vSimModemCount);
+        vSimModemCountNumber = 0;
+    }
 	// two modem device also has 3 slot (2sim + 1vsim)
     if (simSlotCountNumber == DUAL_SLOT_COUNT &&
         (vSimModemCountNumber == MAX_SLOT_COUNT || vSimModemCountNumber == DUAL_SLOT_COUNT)) {
